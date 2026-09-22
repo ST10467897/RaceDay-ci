@@ -30,3 +30,17 @@ This document plans the REST API that will be built in Part 2. Every endpoint is
 | PUT | `/api/users/me` | Update the logged-in user's profile (not email, password or role) | Any | Body:<br>`{ "firstName": "Sipho", "lastName": "Dlamini", "phone": "0721234567", "dateOfBirth": "1996-02-27", "city": "Soweto" }` | **200** updated profile<br>**400** validation failed<br>**401** not logged in |
 
 ---
+
+## 3. Events
+
+| Method | Route | Purpose | Role | Request | Responses |
+|---|---|---|---|---|---|
+| GET | `/api/events` | List published events, optionally filtered | None | Query (all optional):<br>`?type=Running&province=Gauteng&from=2026-10-01` | **200** `[ { "eventId", "name", "eventType", "eventDate", "startTime", "venue", "city", "province", "status" } ]`<br>**400** invalid filter value (e.g. bad date) |
+| GET | `/api/events/{id}` | Get one event with its categories | None | Path: `id` (EventId) | **200** event object including `"organiser": { "userId", "firstName", "lastName" }` and `"categories": [ ... ]`<br>**404** event not found |
+| GET | `/api/events/mine` | List events created by the logged-in organiser (all statuses) | Organiser | Header only | **200** array of events<br>**401** not logged in<br>**403** caller is a participant |
+| POST | `/api/events` | Create a new event owned by the caller | Organiser | Body:<br>`{ "eventTypeId": 1, "name": "Soweto Heritage Marathon", "description": "...", "eventDate": "2026-11-01", "startTime": "06:00", "venue": "FNB Stadium", "city": "Johannesburg", "province": "Gauteng", "latitude": -26.2347, "longitude": 27.9824, "status": "Draft" }` | **201** created event, `Location: /api/events/{id}`<br>**400** validation failed (date in the past, unknown eventTypeId, missing venue)<br>**401** not logged in<br>**403** caller is a participant |
+| PUT | `/api/events/{id}` | Update an event the caller owns | Organiser (owner only) | Path: `id`<br>Body: same fields as POST | **200** updated event<br>**400** validation failed<br>**401** not logged in<br>**403** not the organiser of this event<br>**404** event not found |
+| DELETE | `/api/events/{id}` | Delete an event the caller owns (categories cascade) | Organiser (owner only) | Path: `id` | **204** deleted<br>**401** not logged in<br>**403** not the organiser of this event<br>**404** event not found<br>**409** event has enrolments; cancel it instead (set status to `Cancelled`) |
+| GET | `/api/event-types` | List event types for dropdowns | None | – | **200** `[ { "eventTypeId": 1, "name": "Running" }, ... ]` |
+
+---
