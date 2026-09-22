@@ -15,3 +15,12 @@ RaceDay solves a common problem for community sports events: entries are collect
 - **Anyone** (no login) can browse published events and view the public leaderboard for a completed event.
 
 Each event stores its venue coordinates so that Part 2 can display live weather for the event location, and a route image URL that will point to Azure Blob Storage in Part 3.
+
+## User roles
+
+| Role | Can do | Cannot do |
+|---|---|---|
+| **Organiser** | Create, edit and delete their own events and categories. View enrolments for their events. Record and correct results. | Enrol in events. Edit events created by another organiser. |
+| **Participant** | Register and log in. Maintain their profile. Enrol in a category and cancel their own enrolment. View their enrolments and results. | Create events or categories. Record results. Cancel another participant's enrolment. |
+
+Public registration always creates a **Participant**. Organiser accounts are seeded through the SQL script so that nobody can self-register as an organiser. See the [API endpoint plan](docs/api-endpoint-plan.md) for the full authorisation rules.
