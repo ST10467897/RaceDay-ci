@@ -320,3 +320,43 @@ INSERT INTO dbo.Categories (EventId, Name, DistanceKm, EntryFee, MaxParticipants
     (4, '21.1km Half Marathon',  21.10, 280.00, 4000, 16),
     (4, '10km Road Race',        10.00, 140.00, 6000, 12);
 GO
+
+/* -----------------------------------------------------------------------------
+   Enrolments
+   Participants: Sipho(3), Aisha(4), Johan(5), Lerato(6), Megan(7)
+   ----------------------------------------------------------------------------- */
+INSERT INTO dbo.Enrolments (UserId, CategoryId, BibNumber, Status, EnrolledAt) VALUES
+    -- Soweto Heritage Marathon (upcoming)
+    (3, 1, 1001, 'Active',    '2026-09-02 08:14:00'),   -- EnrolmentId 1: Sipho, 42.2km
+    (5, 1, 1002, 'Active',    '2026-09-03 17:45:00'),   -- EnrolmentId 2: Johan, 42.2km
+    (6, 2, 2001, 'Active',    '2026-09-05 12:30:00'),   -- EnrolmentId 3: Lerato, 21.1km
+    (4, 3, 3001, 'Cancelled', '2026-09-06 09:00:00'),   -- EnrolmentId 4: Aisha, 10km (cancelled)
+
+    -- Cape Peninsula Cycle Tour (upcoming)
+    (7, 4,  101, 'Active',    '2026-09-10 19:20:00'),   -- EnrolmentId 5: Megan, 109km
+    (5, 5,  501, 'Active',    '2026-09-11 07:05:00'),   -- EnrolmentId 6: Johan, 42km
+
+    -- Durban Golden Mile Coastal Walk (upcoming)
+    (4, 6,   11, 'Active',    '2026-09-12 10:10:00'),   -- EnrolmentId 7: Aisha, 10km walk
+    (6, 7,   51, 'Active',    '2026-09-15 15:55:00'),   -- EnrolmentId 8: Lerato, 5km walk
+
+    -- Pretoria Jacaranda Half Marathon (completed)
+    (3, 8,  201, 'Active',    '2026-07-20 11:00:00'),   -- EnrolmentId 9:  Sipho, 21.1km
+    (4, 8,  202, 'Active',    '2026-07-21 13:30:00'),   -- EnrolmentId 10: Aisha, 21.1km
+    (5, 8,  203, 'Active',    '2026-07-22 16:45:00'),   -- EnrolmentId 11: Johan, 21.1km
+    (6, 9,  301, 'Active',    '2026-07-25 09:15:00'),   -- EnrolmentId 12: Lerato, 10km
+    (7, 9,  302, 'Active',    '2026-07-28 20:40:00');   -- EnrolmentId 13: Megan, 10km
+GO
+
+/* -----------------------------------------------------------------------------
+   Results (Pretoria Jacaranda Half Marathon, recorded by organiser Pieter)
+   ----------------------------------------------------------------------------- */
+INSERT INTO dbo.Results (EnrolmentId, ElapsedSeconds, OverallPosition, CategoryPosition, Status, RecordedById, RecordedAt) VALUES
+    -- 21.1km Half Marathon
+    (9,  5112, 14, 1, 'Finished', 2, '2026-08-16 10:05:00'),   -- Sipho  01:25:12
+    (11, 6389, 87, 2, 'Finished', 2, '2026-08-16 10:05:00'),   -- Johan  01:46:29
+    (10, NULL, NULL, NULL, 'DNF',  2, '2026-08-16 10:05:00'),  -- Aisha  did not finish
+    -- 10km Road Race
+    (12, 2967,  9, 1, 'Finished', 2, '2026-08-16 09:40:00'),   -- Lerato 00:49:27
+    (13, NULL, NULL, NULL, 'DNS',  2, '2026-08-16 09:40:00');  -- Megan  did not start
+GO
