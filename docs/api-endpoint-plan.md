@@ -55,3 +55,14 @@ This document plans the REST API that will be built in Part 2. Every endpoint is
 | DELETE | `/api/categories/{id}` | Delete a category | Organiser (owner of parent event) | Path: `id` | **204** deleted<br>**401** not logged in<br>**403** not the organiser of the parent event<br>**404** category not found<br>**409** category has enrolments |
 
 ---
+
+## 5. Enrolments
+
+| Method | Route | Purpose | Role | Request | Responses |
+|---|---|---|---|---|---|
+| POST | `/api/enrolments` | Enrol the caller in a category (bib number assigned automatically) | Participant | Body:<br>`{ "categoryId": 2 }` | **201** `{ "enrolmentId", "categoryId", "eventName", "categoryName", "bibNumber", "status": "Active", "enrolledAt" }`<br>**400** caller is younger than the category's minAge, or event is not `Published`<br>**401** not logged in<br>**403** caller is an organiser<br>**404** category not found<br>**409** already enrolled in this category, or the category is full |
+| GET | `/api/enrolments/me` | List the caller's enrolments (upcoming and past) | Participant | Header only | **200** array of enrolments with event and category details<br>**401** not logged in<br>**403** caller is an organiser |
+| DELETE | `/api/enrolments/{id}` | Cancel the caller's own enrolment (sets status to `Cancelled`) | Participant (own only) | Path: `id` (EnrolmentId) | **204** cancelled<br>**401** not logged in<br>**403** enrolment belongs to another user<br>**404** enrolment not found<br>**409** event has already taken place, or a result exists |
+| GET | `/api/events/{id}/enrolments` | List all enrolments for an event (organiser's participant list) | Organiser (owner only) | Path: `id` (EventId)<br>Query (optional): `?categoryId=2&status=Active` | **200** `[ { "enrolmentId", "bibNumber", "status", "participant": { "userId", "firstName", "lastName", "email" }, "category": { "categoryId", "name" } } ]`<br>**401** not logged in<br>**403** not the organiser of this event<br>**404** event not found |
+
+---
