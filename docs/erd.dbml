@@ -22,6 +22,15 @@ Table Roles {
   Name nvarchar(50) [not null, unique, note: 'Organiser | Participant']
 }
 
+Table EventTypes {
+  EventTypeId int [pk, increment]
+  Name nvarchar(50) [not null, unique, note: 'Running | Walking | Cycling']
+}
+
+// ---------------------------------------------------------------------------
+// Core entities
+// ---------------------------------------------------------------------------
+
 Table Users {
   UserId int [pk, increment]
   RoleId int [not null, ref: > Roles.RoleId]
@@ -35,4 +44,27 @@ Table Users {
   CreatedAt datetime2 [not null, default: `SYSUTCDATETIME()`]
 
   Note: 'Custom users table so JWT auth in Part 2 does not depend on ASP.NET Identity.'
+}
+
+Table Events {
+  EventId int [pk, increment]
+  OrganiserId int [not null, ref: > Users.UserId]
+  EventTypeId int [not null, ref: > EventTypes.EventTypeId]
+  Name nvarchar(150) [not null]
+  Description nvarchar(2000)
+  EventDate date [not null]
+  StartTime time [not null]
+  Venue nvarchar(150) [not null]
+  City nvarchar(100) [not null]
+  Province nvarchar(100) [not null]
+  Latitude decimal(9,6) [note: 'For live weather (Part 2)']
+  Longitude decimal(9,6) [note: 'For live weather (Part 2)']
+  RouteImageUrl nvarchar(500) [note: 'Azure Blob link (Part 3)']
+  Status nvarchar(20) [not null, default: 'Published', note: 'Draft | Published | Cancelled | Completed']
+  CreatedAt datetime2 [not null, default: `SYSUTCDATETIME()`]
+
+  indexes {
+    EventDate
+    OrganiserId
+  }
 }
