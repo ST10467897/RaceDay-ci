@@ -1,0 +1,28 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vs/
+.vscode/
+.idea/
+*.swp
+*.suo
+*.user
+
+# SQL Server / SSMS scratch files
+*.bak
+*.mdf
+*.ldf
+*.ndf
+*.sqlplan
+
+# Build output (for later parts)
+bin/
+obj/
+*.log
+
+# Secrets
+*.env
+appsettings.*.json
+!appsettings.json
