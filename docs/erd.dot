@@ -1,0 +1,109 @@
+digraph RaceDay {
+  graph [rankdir=TB, splines=spline, nodesep=0.9, ranksep=1.0, pad=0.4, bgcolor="white",
+         fontname="Helvetica", label="RaceDay - Entity Relationship Diagram (crow's foot)\nUsers M:M Categories is resolved through Enrolments; Enrolments 1 : 0..1 Results",
+         labelloc=t, fontsize=16];
+  node  [shape=plain, fontname="Helvetica", fontsize=11];
+  edge  [fontname="Helvetica", fontsize=9, color="#333333", penwidth=1.2, dir=both, arrowsize=0.9];
+
+  Roles [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+      <TR><TD BGCOLOR="#5B7DB1" COLSPAN="2"><FONT COLOR="white"><B>Roles</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="pk"><B>RoleId</B></TD><TD ALIGN="LEFT">int  PK</TD></TR>
+      <TR><TD ALIGN="LEFT">Name</TD><TD ALIGN="LEFT">nvarchar(50)  UQ</TD></TR>
+    </TABLE>>];
+
+  EventTypes [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+      <TR><TD BGCOLOR="#5B7DB1" COLSPAN="2"><FONT COLOR="white"><B>EventTypes</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="pk"><B>EventTypeId</B></TD><TD ALIGN="LEFT">int  PK</TD></TR>
+      <TR><TD ALIGN="LEFT">Name</TD><TD ALIGN="LEFT">nvarchar(50)  UQ</TD></TR>
+    </TABLE>>];
+
+  Users [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+      <TR><TD BGCOLOR="#2E5E8C" COLSPAN="2"><FONT COLOR="white"><B>Users</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="pk"><B>UserId</B></TD><TD ALIGN="LEFT">int  PK</TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="roleid"><I>RoleId</I></TD><TD ALIGN="LEFT">int  FK</TD></TR>
+      <TR><TD ALIGN="LEFT">FirstName</TD><TD ALIGN="LEFT">nvarchar(100)</TD></TR>
+      <TR><TD ALIGN="LEFT">LastName</TD><TD ALIGN="LEFT">nvarchar(100)</TD></TR>
+      <TR><TD ALIGN="LEFT">Email</TD><TD ALIGN="LEFT">nvarchar(256)  UQ</TD></TR>
+      <TR><TD ALIGN="LEFT">PasswordHash</TD><TD ALIGN="LEFT">nvarchar(255)</TD></TR>
+      <TR><TD ALIGN="LEFT">Phone</TD><TD ALIGN="LEFT">nvarchar(20)  NULL</TD></TR>
+      <TR><TD ALIGN="LEFT">DateOfBirth</TD><TD ALIGN="LEFT">date</TD></TR>
+      <TR><TD ALIGN="LEFT">City</TD><TD ALIGN="LEFT">nvarchar(100)  NULL</TD></TR>
+      <TR><TD ALIGN="LEFT">CreatedAt</TD><TD ALIGN="LEFT">datetime2  DEFAULT</TD></TR>
+    </TABLE>>];
+
+  Events [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+      <TR><TD BGCOLOR="#2E5E8C" COLSPAN="2"><FONT COLOR="white"><B>Events</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="pk"><B>EventId</B></TD><TD ALIGN="LEFT">int  PK</TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="org"><I>OrganiserId</I></TD><TD ALIGN="LEFT">int  FK → Users</TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="type"><I>EventTypeId</I></TD><TD ALIGN="LEFT">int  FK</TD></TR>
+      <TR><TD ALIGN="LEFT">Name</TD><TD ALIGN="LEFT">nvarchar(150)</TD></TR>
+      <TR><TD ALIGN="LEFT">Description</TD><TD ALIGN="LEFT">nvarchar(2000)  NULL</TD></TR>
+      <TR><TD ALIGN="LEFT">EventDate</TD><TD ALIGN="LEFT">date</TD></TR>
+      <TR><TD ALIGN="LEFT">StartTime</TD><TD ALIGN="LEFT">time</TD></TR>
+      <TR><TD ALIGN="LEFT">Venue</TD><TD ALIGN="LEFT">nvarchar(150)</TD></TR>
+      <TR><TD ALIGN="LEFT">City</TD><TD ALIGN="LEFT">nvarchar(100)</TD></TR>
+      <TR><TD ALIGN="LEFT">Province</TD><TD ALIGN="LEFT">nvarchar(100)</TD></TR>
+      <TR><TD ALIGN="LEFT">Latitude</TD><TD ALIGN="LEFT">decimal(9,6)  NULL</TD></TR>
+      <TR><TD ALIGN="LEFT">Longitude</TD><TD ALIGN="LEFT">decimal(9,6)  NULL</TD></TR>
+      <TR><TD ALIGN="LEFT">RouteImageUrl</TD><TD ALIGN="LEFT">nvarchar(500)  NULL</TD></TR>
+      <TR><TD ALIGN="LEFT">Status</TD><TD ALIGN="LEFT">nvarchar(20)  CHECK</TD></TR>
+      <TR><TD ALIGN="LEFT">CreatedAt</TD><TD ALIGN="LEFT">datetime2  DEFAULT</TD></TR>
+    </TABLE>>];
+
+  Categories [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+      <TR><TD BGCOLOR="#2E5E8C" COLSPAN="2"><FONT COLOR="white"><B>Categories</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="pk"><B>CategoryId</B></TD><TD ALIGN="LEFT">int  PK</TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="event"><I>EventId</I></TD><TD ALIGN="LEFT">int  FK (cascade)</TD></TR>
+      <TR><TD ALIGN="LEFT">Name</TD><TD ALIGN="LEFT">nvarchar(100)</TD></TR>
+      <TR><TD ALIGN="LEFT">DistanceKm</TD><TD ALIGN="LEFT">decimal(6,2)  CHECK &gt; 0</TD></TR>
+      <TR><TD ALIGN="LEFT">EntryFee</TD><TD ALIGN="LEFT">decimal(10,2)  CHECK ≥ 0</TD></TR>
+      <TR><TD ALIGN="LEFT">MaxParticipants</TD><TD ALIGN="LEFT">int  CHECK &gt; 0</TD></TR>
+      <TR><TD ALIGN="LEFT">MinAge</TD><TD ALIGN="LEFT">int  DEFAULT 0</TD></TR>
+    </TABLE>>];
+
+  Enrolments [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+      <TR><TD BGCOLOR="#B5651D" COLSPAN="2"><FONT COLOR="white"><B>Enrolments</B>  (junction)</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="pk"><B>EnrolmentId</B></TD><TD ALIGN="LEFT">int  PK</TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="user"><I>UserId</I></TD><TD ALIGN="LEFT">int  FK</TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="cat"><I>CategoryId</I></TD><TD ALIGN="LEFT">int  FK</TD></TR>
+      <TR><TD ALIGN="LEFT">BibNumber</TD><TD ALIGN="LEFT">int</TD></TR>
+      <TR><TD ALIGN="LEFT">Status</TD><TD ALIGN="LEFT">nvarchar(20)  CHECK</TD></TR>
+      <TR><TD ALIGN="LEFT">EnrolledAt</TD><TD ALIGN="LEFT">datetime2  DEFAULT</TD></TR>
+      <TR><TD ALIGN="LEFT" COLSPAN="2"><FONT POINT-SIZE="9">UQ (UserId, CategoryId)   UQ (CategoryId, BibNumber)</FONT></TD></TR>
+    </TABLE>>];
+
+  Results [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+      <TR><TD BGCOLOR="#2E5E8C" COLSPAN="2"><FONT COLOR="white"><B>Results</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="pk"><B>ResultId</B></TD><TD ALIGN="LEFT">int  PK</TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="enr"><I>EnrolmentId</I></TD><TD ALIGN="LEFT">int  FK, UQ</TD></TR>
+      <TR><TD ALIGN="LEFT">ElapsedSeconds</TD><TD ALIGN="LEFT">int  NULL</TD></TR>
+      <TR><TD ALIGN="LEFT">OverallPosition</TD><TD ALIGN="LEFT">int  NULL</TD></TR>
+      <TR><TD ALIGN="LEFT">CategoryPosition</TD><TD ALIGN="LEFT">int  NULL</TD></TR>
+      <TR><TD ALIGN="LEFT">Status</TD><TD ALIGN="LEFT">nvarchar(20)  CHECK</TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="rec"><I>RecordedById</I></TD><TD ALIGN="LEFT">int  FK → Users</TD></TR>
+      <TR><TD ALIGN="LEFT">RecordedAt</TD><TD ALIGN="LEFT">datetime2  DEFAULT</TD></TR>
+    </TABLE>>];
+
+  // Crow's foot: teetee = exactly one, crowodot = zero or many, teeodot = zero or one
+  Roles -> Users    [arrowtail=teetee, arrowhead=crowodot, xlabel="has"];
+  EventTypes -> Events     [arrowtail=teetee, arrowhead=crowodot, xlabel="classifies"];
+  Users -> Events      [arrowtail=teetee, arrowhead=crowodot, xlabel="organises"];
+  Events -> Categories[arrowtail=teetee, arrowhead=crowodot, xlabel="offers"];
+  Users -> Enrolments [arrowtail=teetee, arrowhead=crowodot, xlabel="enrols"];
+  Categories -> Enrolments  [arrowtail=teetee, arrowhead=crowodot, xlabel="enrolled in"];
+  Enrolments -> Results     [arrowtail=teetee, arrowhead=teeodot,  xlabel="achieves"];
+  Users -> Results     [arrowtail=teetee, arrowhead=crowodot, xlabel="records", style=dashed];
+
+  { rank=same; Roles; EventTypes; }
+  { rank=same; Users; Events; }
+  { rank=same; Categories; }
+  { rank=same; Enrolments; }
+  { rank=same; Results; }
+}
