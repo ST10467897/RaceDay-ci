@@ -163,3 +163,74 @@ CREATE TABLE dbo.Categories
     CONSTRAINT CK_Categories_MinAge          CHECK (MinAge BETWEEN 0 AND 120)
 );
 GO
+
+/* -----------------------------------------------------------------------------
+   6. Enrolments (junction table)
+   Resolves the many-to-many relationship between Users and Categories.
+   A participant may enrol in one category only once (UQ on UserId, CategoryId)
+   and bib numbers are unique within a category.
+   Both FKs use NO ACTION so SQL Server does not see multiple cascade paths.
+   ----------------------------------------------------------------------------- */
+CREATE TABLE dbo.Enrolments
+(
+    EnrolmentId  INT           NOT NULL IDENTITY(1,1),
+    UserId       INT           NOT NULL,
+    CategoryId   INT           NOT NULL,
+    BibNumber    INT           NOT NULL,
+    Status       NVARCHAR(20)  NOT NULL CONSTRAINT DF_Enrolments_Status DEFAULT ('Active'),
+    EnrolledAt   DATETIME2(0)  NOT NULL CONSTRAINT DF_Enrolments_EnrolledAt DEFAULT (SYSUTCDATETIME()),
+
+    CONSTRAINT PK_Enrolments                PRIMARY KEY CLUSTERED (EnrolmentId),
+    CONSTRAINT UQ_Enrolments_User_Category  UNIQUE (UserId, CategoryId),
+    CONSTRAINT UQ_Enrolments_Category_Bib   UNIQUE (CategoryId, BibNumber),
+    CONSTRAINT FK_Enrolments_Users          FOREIGN KEY (UserId)
+        REFERENCES dbo.Users (UserId)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT FK_Enrolments_Categories     FOREIGN KEY (CategoryId)
+        REFERENCES dbo.Categories (CategoryId)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT CK_Enrolments_Status         CHECK (Status IN ('Active', 'Cancelled')),
+    CONSTRAINT CK_Enrolments_BibNumber      CHECK (BibNumber > 0)
+);
+GO
+
+CREATE INDEX IX_Enrolments_CategoryId ON dbo.Enrolments (CategoryId);
+GO
+
+/* -----------------------------------------------------------------------------
+   7. Results
+   One enrolment has at most one result (1 to 0..1), enforced by UQ on
+   EnrolmentId. ElapsedSeconds and positions are only present for finishers.
+   ----------------------------------------------------------------------------- */
+CREATE TABLE dbo.Results
+(
+    ResultId          INT           NOT NULL IDENTITY(1,1),
+    EnrolmentId       INT           NOT NULL,
+    ElapsedSeconds    INT           NULL,
+    OverallPosition   INT           NULL,
+    CategoryPosition  INT           NULL,
+    Status            NVARCHAR(20)  NOT NULL,
+    RecordedById      INT           NOT NULL,
+    RecordedAt        DATETIME2(0)  NOT NULL CONSTRAINT DF_Results_RecordedAt DEFAULT (SYSUTCDATETIME()),
+
+    CONSTRAINT PK_Results               PRIMARY KEY CLUSTERED (ResultId),
+    CONSTRAINT UQ_Results_EnrolmentId   UNIQUE (EnrolmentId),
+    CONSTRAINT FK_Results_Enrolments    FOREIGN KEY (EnrolmentId)
+        REFERENCES dbo.Enrolments (EnrolmentId)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT FK_Results_Users         FOREIGN KEY (RecordedById)
+        REFERENCES dbo.Users (UserId)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT CK_Results_Status        CHECK (Status IN ('Finished', 'DNF', 'DNS')),
+    CONSTRAINT CK_Results_ElapsedSeconds CHECK (ElapsedSeconds IS NULL OR ElapsedSeconds > 0),
+    CONSTRAINT CK_Results_Positions     CHECK (
+        (OverallPosition  IS NULL OR OverallPosition  > 0) AND
+        (CategoryPosition IS NULL OR CategoryPosition > 0)
+    ),
+    -- Finishers must have a time; DNF/DNS must not.
+    CONSTRAINT CK_Results_Finished_HasTime CHECK (
+        (Status =  'Finished' AND ElapsedSeconds IS NOT NULL) OR
+        (Status <> 'Finished' AND ElapsedSeconds IS NULL AND OverallPosition IS NULL AND CategoryPosition IS NULL)
+    )
+);
+GO
