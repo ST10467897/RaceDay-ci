@@ -175,7 +175,7 @@ The screenshot above is from run [#35745452899](https://github.com/ST10467897/Ra
 
 Unlisted YouTube video (8–12 minutes) covering the system, the repository, the ERD, the endpoint plan, a live run of the SQL script in SSMS and the green CI run:
 
-**https://youtu.be/REPLACE_WITH_VIDEO_ID**
+**https://youtu.be/Pg0UmGn0pEU**
 
 ## Design decisions
 
@@ -189,4 +189,11 @@ Unlisted YouTube video (8–12 minutes) covering the system, the repository, the
 
 ## AI-use disclosure
 
-REPLACE_WITH_YOUR_DISCLOSURE. State which AI tools (if any) were used, for which parts of the submission, and confirm that the design decisions, the video narration and the final submission are your own work.
+Google Gemini and Claude were used to plan and organise this project. They were used for:
+
+- Formatting the README in a professional manner
+- Planning the approach to answering the assignment requirements
+- Project management
+- Clear code commenting
+
+The design decisions, the video narration and the final submission are my own work.
