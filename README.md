@@ -169,6 +169,8 @@ A green run is evidence that the SQL script executes cleanly on a fresh SQL Serv
 
 ![CI passing](docs/ci-green.png)
 
+The screenshot above is from run [#35745452899](https://github.com/ST10467897/RaceDay-ci/actions/runs/35745452899) on a public mirror of this repository, [ST10467897/RaceDay-ci](https://github.com/ST10467897/RaceDay-ci), at the same commit. At submission time the EMGPSD organisation had exhausted its GitHub Actions minutes, so runs on this repository could not start. The workflow also has a `workflow_dispatch` trigger, so it can be run on this repository at any time from the Actions tab with **Run workflow**.
+
 ## Video walkthrough
 
 Unlisted YouTube video (8–12 minutes) covering the system, the repository, the ERD, the endpoint plan, a live run of the SQL script in SSMS and the green CI run:
@@ -184,3 +186,7 @@ Unlisted YouTube video (8–12 minutes) covering the system, the repository, the
 - **Bib numbers are unique per category, not globally.** Different categories in the same event commonly use different number ranges (1000s for the marathon, 2000s for the half), so the uniqueness rule is `(CategoryId, BibNumber)`.
 - **Status columns as constrained strings.** `Events.Status`, `Enrolments.Status` and `Results.Status` use `NVARCHAR` with `CHECK` constraints rather than extra lookup tables. They are small fixed sets that the API maps to enums, and this keeps the ERD readable.
 - **Forward-looking columns.** `Latitude` and `Longitude` on Events support the live-weather feature in Part 2, and `RouteImageUrl` will hold an Azure Blob Storage URL in Part 3. Adding them now avoids a schema change later.
+
+## AI-use disclosure
+
+REPLACE_WITH_YOUR_DISCLOSURE. State which AI tools (if any) were used, for which parts of the submission, and confirm that the design decisions, the video narration and the final submission are your own work.
