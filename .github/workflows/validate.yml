@@ -1,0 +1,78 @@
+name: Validate submission
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: check that every required Part 1 document is present
+  # ---------------------------------------------------------------------------
+  structure:
+    name: Check repository structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check docs folder
+        run: |
+          set -e
+          fail=0
+
+          check() {
+            if [ -e "$1" ]; then
+              echo "OK       $1"
+            else
+              echo "MISSING  $1  ($2)"
+              fail=1
+            fi
+          }
+
+          echo "== Required files =="
+          check README.md                      "project README"
+          check docs/api-endpoint-plan.md      "API endpoint plan"
+          check docs/raceday_schema.sql        "SQL schema script"
+          check docs/erd.dbml                  "ERD source"
+
+          echo "== ERD image (PNG or PDF) =="
+          if [ -e docs/erd.png ] || [ -e docs/erd.pdf ]; then
+            ls -1 docs/erd.png docs/erd.pdf 2>/dev/null | sed 's/^/OK       /'
+          else
+            echo "MISSING  docs/erd.png or docs/erd.pdf"
+            fail=1
+          fi
+
+          echo "== SQL file present in docs =="
+          if ls docs/*.sql >/dev/null 2>&1; then
+            ls -1 docs/*.sql | sed 's/^/OK       /'
+          else
+            echo "MISSING  docs/*.sql"
+            fail=1
+          fi
+
+          exit $fail
+
+      - name: Check README contains a YouTube link
+        run: |
+          if grep -Eiq 'https?://(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[A-Za-z0-9_-]+' README.md; then
+            echo "OK       README.md contains a YouTube link"
+          else
+            echo "MISSING  README.md has no YouTube link"
+            exit 1
+          fi
+
+      - name: Check README sections
+        run: |
+          fail=0
+          for heading in "ERD" "API" "SQL" "CI" "Video"; do
+            if grep -qi "$heading" README.md; then
+              echo "OK       README mentions '$heading'"
+            else
+              echo "MISSING  README does not mention '$heading'"
+              fail=1
+            fi
+          done
+          exit $fail
