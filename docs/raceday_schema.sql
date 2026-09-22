@@ -234,3 +234,38 @@ CREATE TABLE dbo.Results
     )
 );
 GO
+
+/* =============================================================================
+   SEED DATA
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   Roles and EventTypes
+   ----------------------------------------------------------------------------- */
+INSERT INTO dbo.Roles (Name) VALUES
+    ('Organiser'),      -- RoleId 1
+    ('Participant');    -- RoleId 2
+
+INSERT INTO dbo.EventTypes (Name) VALUES
+    ('Running'),        -- EventTypeId 1
+    ('Walking'),        -- EventTypeId 2
+    ('Cycling');        -- EventTypeId 3
+GO
+
+/* -----------------------------------------------------------------------------
+   Users
+   PasswordHash values are BCrypt hashes of "Password123!" (work factor 11).
+   Organisers are seeded here; the public register endpoint only creates
+   Participants.
+   ----------------------------------------------------------------------------- */
+INSERT INTO dbo.Users (RoleId, FirstName, LastName, Email, PasswordHash, Phone, DateOfBirth, City) VALUES
+    -- Organisers (UserId 1-2)
+    (1, 'Thandiwe', 'Mokoena',  'thandiwe.mokoena@raceday.co.za',  '$2a$11$Q9hZ3yG5kq1W0pWnZ8uK5uEo7c1dYfN1bqXk0O9gHkq1JkH2eTzAq', '0821234567', '1985-04-12', 'Johannesburg'),
+    (1, 'Pieter',   'van Wyk',  'pieter.vanwyk@raceday.co.za',     '$2a$11$Q9hZ3yG5kq1W0pWnZ8uK5uEo7c1dYfN1bqXk0O9gHkq1JkH2eTzAq', '0837654321', '1979-11-03', 'Cape Town'),
+    -- Participants (UserId 3-7)
+    (2, 'Sipho',    'Dlamini',  'sipho.dlamini@gmail.com',          '$2a$11$Q9hZ3yG5kq1W0pWnZ8uK5uEo7c1dYfN1bqXk0O9gHkq1JkH2eTzAq', '0729876543', '1996-02-27', 'Soweto'),
+    (2, 'Aisha',    'Naidoo',   'aisha.naidoo@outlook.com',         '$2a$11$Q9hZ3yG5kq1W0pWnZ8uK5uEo7c1dYfN1bqXk0O9gHkq1JkH2eTzAq', '0761122334', '1992-08-15', 'Durban'),
+    (2, 'Johan',    'Botha',    'johan.botha@gmail.com',            '$2a$11$Q9hZ3yG5kq1W0pWnZ8uK5uEo7c1dYfN1bqXk0O9gHkq1JkH2eTzAq', '0845566778', '1988-06-30', 'Pretoria'),
+    (2, 'Lerato',   'Khumalo',  'lerato.khumalo@yahoo.com',         '$2a$11$Q9hZ3yG5kq1W0pWnZ8uK5uEo7c1dYfN1bqXk0O9gHkq1JkH2eTzAq', '0713344556', '2001-12-09', 'Johannesburg'),
+    (2, 'Megan',    'Pillay',   'megan.pillay@gmail.com',           '$2a$11$Q9hZ3yG5kq1W0pWnZ8uK5uEo7c1dYfN1bqXk0O9gHkq1JkH2eTzAq', NULL,         '1999-03-21', 'Cape Town');
+GO
