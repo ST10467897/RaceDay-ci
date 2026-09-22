@@ -66,3 +66,14 @@ This document plans the REST API that will be built in Part 2. Every endpoint is
 | GET | `/api/events/{id}/enrolments` | List all enrolments for an event (organiser's participant list) | Organiser (owner only) | Path: `id` (EventId)<br>Query (optional): `?categoryId=2&status=Active` | **200** `[ { "enrolmentId", "bibNumber", "status", "participant": { "userId", "firstName", "lastName", "email" }, "category": { "categoryId", "name" } } ]`<br>**401** not logged in<br>**403** not the organiser of this event<br>**404** event not found |
 
 ---
+
+## 6. Results
+
+| Method | Route | Purpose | Role | Request | Responses |
+|---|---|---|---|---|---|
+| POST | `/api/enrolments/{id}/result` | Record a result for one enrolment | Organiser (owner of the event) | Path: `id` (EnrolmentId)<br>Body:<br>`{ "status": "Finished", "elapsedSeconds": 5112, "overallPosition": 14, "categoryPosition": 1 }`<br>For DNF/DNS: `{ "status": "DNF" }` | **201** created result (`recordedById` = caller)<br>**400** validation failed (Finished without elapsedSeconds, negative values)<br>**401** not logged in<br>**403** not the organiser of the enrolment's event<br>**404** enrolment not found<br>**409** a result already exists for this enrolment, or the enrolment is `Cancelled` |
+| PUT | `/api/results/{id}` | Correct a recorded result | Organiser (owner of the event) | Path: `id` (ResultId)<br>Body: same fields as POST | **200** updated result<br>**400** validation failed<br>**401** not logged in<br>**403** not the organiser of the event<br>**404** result not found |
+| GET | `/api/events/{id}/results` | Public leaderboard for an event, grouped by category | None | Path: `id` (EventId)<br>Query (optional): `?categoryId=8` | **200** `[ { "category": "21.1km Half Marathon", "results": [ { "categoryPosition", "overallPosition", "bibNumber", "participant": "Sipho Dlamini", "elapsedSeconds", "status" } ] } ]`<br>**404** event not found |
+| GET | `/api/results/me` | The caller's personal results history | Participant | Header only | **200** array of results with event, category, time and positions<br>**401** not logged in<br>**403** caller is an organiser |
+
+---
