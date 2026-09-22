@@ -1,0 +1,38 @@
+// RaceDay - Entity Relationship Diagram
+// PROG6212 Part 1
+//
+// Paste into https://dbdiagram.io to render in crow's-foot notation.
+// This file is the source of truth for docs/erd.png and docs/erd.pdf and
+// matches docs/raceday_schema.sql exactly (names, types, keys, constraints).
+
+Project RaceDay {
+  database_type: 'SQL Server'
+  Note: '''
+    Event management and participant tracking for running, walking and cycling events.
+    Two roles: Organiser (creates events, records results) and Participant (enrols, views results).
+  '''
+}
+
+// ---------------------------------------------------------------------------
+// Lookup tables
+// ---------------------------------------------------------------------------
+
+Table Roles {
+  RoleId int [pk, increment]
+  Name nvarchar(50) [not null, unique, note: 'Organiser | Participant']
+}
+
+Table Users {
+  UserId int [pk, increment]
+  RoleId int [not null, ref: > Roles.RoleId]
+  FirstName nvarchar(100) [not null]
+  LastName nvarchar(100) [not null]
+  Email nvarchar(256) [not null, unique]
+  PasswordHash nvarchar(255) [not null, note: 'BCrypt hash, never plain text']
+  Phone nvarchar(20)
+  DateOfBirth date [not null]
+  City nvarchar(100)
+  CreatedAt datetime2 [not null, default: `SYSUTCDATETIME()`]
+
+  Note: 'Custom users table so JWT auth in Part 2 does not depend on ASP.NET Identity.'
+}
