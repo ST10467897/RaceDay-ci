@@ -269,3 +269,54 @@ INSERT INTO dbo.Users (RoleId, FirstName, LastName, Email, PasswordHash, Phone, 
     (2, 'Lerato',   'Khumalo',  'lerato.khumalo@yahoo.com',         '$2a$11$Q9hZ3yG5kq1W0pWnZ8uK5uEo7c1dYfN1bqXk0O9gHkq1JkH2eTzAq', '0713344556', '2001-12-09', 'Johannesburg'),
     (2, 'Megan',    'Pillay',   'megan.pillay@gmail.com',           '$2a$11$Q9hZ3yG5kq1W0pWnZ8uK5uEo7c1dYfN1bqXk0O9gHkq1JkH2eTzAq', NULL,         '1999-03-21', 'Cape Town');
 GO
+
+/* -----------------------------------------------------------------------------
+   Events
+   ----------------------------------------------------------------------------- */
+INSERT INTO dbo.Events (OrganiserId, EventTypeId, Name, Description, EventDate, StartTime, Venue, City, Province, Latitude, Longitude, RouteImageUrl, Status) VALUES
+    -- EventId 1: upcoming marathon (Running), organised by Thandiwe
+    (1, 1, 'Soweto Heritage Marathon',
+     'A full and half marathon through the streets of Soweto, passing Vilakazi Street and the Orlando Towers. Includes a 10km fun run.',
+     '2026-11-01', '06:00:00', 'FNB Stadium', 'Johannesburg', 'Gauteng',
+     -26.234700, 27.982400, NULL, 'Published'),
+
+    -- EventId 2: upcoming cycle tour (Cycling), organised by Pieter
+    (2, 3, 'Cape Peninsula Cycle Tour',
+     'The classic peninsula loop around Chapman''s Peak and Cape Point, with a shorter 42km option for newer riders.',
+     '2027-03-14', '06:15:00', 'Green Point Common', 'Cape Town', 'Western Cape',
+     -33.905200, 18.410400, NULL, 'Published'),
+
+    -- EventId 3: upcoming coastal walk (Walking), organised by Thandiwe
+    (1, 2, 'Durban Golden Mile Coastal Walk',
+     'A relaxed 10km promenade walk from uShaka Marine World to Blue Lagoon and back, with a 5km family option.',
+     '2026-10-18', '07:30:00', 'uShaka Marine World', 'Durban', 'KwaZulu-Natal',
+     -29.867700, 31.045700, NULL, 'Published'),
+
+    -- EventId 4: past event with results (Running), organised by Pieter
+    (2, 1, 'Pretoria Jacaranda Half Marathon',
+     'Half marathon and 10km through the jacaranda-lined streets of Pretoria, starting and finishing at the Union Buildings.',
+     '2026-08-16', '06:30:00', 'Union Buildings', 'Pretoria', 'Gauteng',
+     -25.740600, 28.211800, NULL, 'Completed');
+GO
+
+/* -----------------------------------------------------------------------------
+   Categories
+   ----------------------------------------------------------------------------- */
+INSERT INTO dbo.Categories (EventId, Name, DistanceKm, EntryFee, MaxParticipants, MinAge) VALUES
+    -- Soweto Heritage Marathon (CategoryId 1-3)
+    (1, '42.2km Marathon',       42.20, 450.00, 5000, 18),
+    (1, '21.1km Half Marathon',  21.10, 300.00, 8000, 16),
+    (1, '10km Fun Run',          10.00, 150.00, 10000, 12),
+
+    -- Cape Peninsula Cycle Tour (CategoryId 4-5)
+    (2, '109km Full Tour',      109.00, 650.00, 30000, 18),
+    (2, '42km Short Tour',       42.00, 350.00, 5000, 14),
+
+    -- Durban Golden Mile Coastal Walk (CategoryId 6-7)
+    (3, '10km Promenade Walk',   10.00, 120.00, 2000, 0),
+    (3, '5km Family Walk',        5.00,  80.00, 3000, 0),
+
+    -- Pretoria Jacaranda Half Marathon (CategoryId 8-9)
+    (4, '21.1km Half Marathon',  21.10, 280.00, 4000, 16),
+    (4, '10km Road Race',        10.00, 140.00, 6000, 12);
+GO
