@@ -44,3 +44,14 @@ This document plans the REST API that will be built in Part 2. Every endpoint is
 | GET | `/api/event-types` | List event types for dropdowns | None | – | **200** `[ { "eventTypeId": 1, "name": "Running" }, ... ]` |
 
 ---
+
+## 4. Categories
+
+| Method | Route | Purpose | Role | Request | Responses |
+|---|---|---|---|---|---|
+| GET | `/api/events/{id}/categories` | List categories for an event, with spaces remaining | None | Path: `id` (EventId) | **200** `[ { "categoryId", "name", "distanceKm", "entryFee", "maxParticipants", "minAge", "enrolledCount" } ]`<br>**404** event not found |
+| POST | `/api/events/{id}/categories` | Add a category to an event the caller owns | Organiser (owner only) | Path: `id` (EventId)<br>Body:<br>`{ "name": "21.1km Half Marathon", "distanceKm": 21.1, "entryFee": 300.00, "maxParticipants": 8000, "minAge": 16 }` | **201** created category<br>**400** validation failed (distance ≤ 0, fee < 0, max ≤ 0)<br>**401** not logged in<br>**403** not the organiser of this event<br>**404** event not found<br>**409** a category with this name already exists on the event |
+| PUT | `/api/categories/{id}` | Update a category | Organiser (owner of parent event) | Path: `id` (CategoryId)<br>Body: same fields as POST | **200** updated category<br>**400** validation failed (e.g. maxParticipants below current enrolments)<br>**401** not logged in<br>**403** not the organiser of the parent event<br>**404** category not found |
+| DELETE | `/api/categories/{id}` | Delete a category | Organiser (owner of parent event) | Path: `id` | **204** deleted<br>**401** not logged in<br>**403** not the organiser of the parent event<br>**404** category not found<br>**409** category has enrolments |
+
+---
