@@ -360,3 +360,74 @@ INSERT INTO dbo.Results (EnrolmentId, ElapsedSeconds, OverallPosition, CategoryP
     (12, 2967,  9, 1, 'Finished', 2, '2026-08-16 09:40:00'),   -- Lerato 00:49:27
     (13, NULL, NULL, NULL, 'DNS',  2, '2026-08-16 09:40:00');  -- Megan  did not start
 GO
+
+/* =============================================================================
+   VERIFICATION QUERIES
+   ============================================================================= */
+
+-- 1. Row counts per table
+SELECT 'Roles'      AS TableName, COUNT(*) AS [Rows] FROM dbo.Roles
+UNION ALL SELECT 'EventTypes', COUNT(*) FROM dbo.EventTypes
+UNION ALL SELECT 'Users',      COUNT(*) FROM dbo.Users
+UNION ALL SELECT 'Events',     COUNT(*) FROM dbo.Events
+UNION ALL SELECT 'Categories', COUNT(*) FROM dbo.Categories
+UNION ALL SELECT 'Enrolments', COUNT(*) FROM dbo.Enrolments
+UNION ALL SELECT 'Results',    COUNT(*) FROM dbo.Results;
+GO
+
+-- 2. Events with their organiser, type and number of categories
+SELECT
+    e.EventId,
+    e.Name          AS EventName,
+    et.Name         AS EventType,
+    e.EventDate,
+    e.City,
+    e.Province,
+    e.Status,
+    u.FirstName + ' ' + u.LastName AS Organiser,
+    COUNT(c.CategoryId) AS CategoryCount
+FROM dbo.Events e
+JOIN dbo.EventTypes et ON et.EventTypeId = e.EventTypeId
+JOIN dbo.Users u       ON u.UserId = e.OrganiserId
+LEFT JOIN dbo.Categories c ON c.EventId = e.EventId
+GROUP BY e.EventId, e.Name, et.Name, e.EventDate, e.City, e.Province, e.Status, u.FirstName, u.LastName
+ORDER BY e.EventDate;
+GO
+
+-- 3. Full join: event, category, participant, enrolment and result
+SELECT
+    e.Name                              AS EventName,
+    c.Name                              AS Category,
+    en.BibNumber,
+    p.FirstName + ' ' + p.LastName      AS Participant,
+    en.Status                           AS EnrolmentStatus,
+    r.Status                            AS ResultStatus,
+    CONVERT(VARCHAR(8), DATEADD(SECOND, r.ElapsedSeconds, CAST('1900-01-01' AS DATETIME)), 108)
+                                        AS FinishTime,   -- hh:mm:ss, NULL for DNF/DNS
+    r.OverallPosition,
+    r.CategoryPosition
+FROM dbo.Enrolments en
+JOIN dbo.Users p       ON p.UserId = en.UserId
+JOIN dbo.Categories c  ON c.CategoryId = en.CategoryId
+JOIN dbo.Events e      ON e.EventId = c.EventId
+LEFT JOIN dbo.Results r ON r.EnrolmentId = en.EnrolmentId
+ORDER BY e.EventDate, c.DistanceKm DESC, ISNULL(r.CategoryPosition, 9999), en.BibNumber;
+GO
+
+-- 4. Leaderboard for the completed event (what GET /api/events/{id}/results returns)
+SELECT
+    c.Name                          AS Category,
+    r.CategoryPosition              AS Pos,
+    p.FirstName + ' ' + p.LastName  AS Participant,
+    en.BibNumber,
+    r.ElapsedSeconds
+FROM dbo.Results r
+JOIN dbo.Enrolments en ON en.EnrolmentId = r.EnrolmentId
+JOIN dbo.Users p       ON p.UserId = en.UserId
+JOIN dbo.Categories c  ON c.CategoryId = en.CategoryId
+WHERE c.EventId = 4 AND r.Status = 'Finished'
+ORDER BY c.DistanceKm DESC, r.CategoryPosition;
+GO
+
+PRINT 'RaceDay schema and seed data created successfully.';
+GO
