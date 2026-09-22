@@ -102,3 +102,14 @@ Table Enrolments {
 
   Note: 'Resolves the many-to-many relationship between Users and Categories.'
 }
+
+Table Results {
+  ResultId int [pk, increment]
+  EnrolmentId int [not null, unique, ref: - Enrolments.EnrolmentId, note: '1 to 0..1']
+  ElapsedSeconds int [note: 'Required when Finished, NULL for DNF/DNS']
+  OverallPosition int
+  CategoryPosition int
+  Status nvarchar(20) [not null, note: 'Finished | DNF | DNS']
+  RecordedById int [not null, ref: > Users.UserId, note: 'Organiser who captured it']
+  RecordedAt datetime2 [not null, default: `SYSUTCDATETIME()`]
+}
