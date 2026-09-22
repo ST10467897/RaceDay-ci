@@ -68,3 +68,21 @@ Table Events {
     OrganiserId
   }
 }
+
+Table Categories {
+  CategoryId int [pk, increment]
+  EventId int [not null, ref: > Events.EventId, note: 'ON DELETE CASCADE']
+  Name nvarchar(100) [not null, note: 'e.g. 21.1km Half Marathon']
+  DistanceKm decimal(6,2) [not null, note: 'CHECK > 0']
+  EntryFee decimal(10,2) [not null, note: 'CHECK >= 0']
+  MaxParticipants int [not null, note: 'CHECK > 0']
+  MinAge int [not null, default: 0]
+
+  indexes {
+    (EventId, Name) [unique]
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Junction: Users M:M Categories
+// ---------------------------------------------------------------------------
