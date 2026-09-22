@@ -86,3 +86,19 @@ Table Categories {
 // ---------------------------------------------------------------------------
 // Junction: Users M:M Categories
 // ---------------------------------------------------------------------------
+
+Table Enrolments {
+  EnrolmentId int [pk, increment]
+  UserId int [not null, ref: > Users.UserId]
+  CategoryId int [not null, ref: > Categories.CategoryId]
+  BibNumber int [not null]
+  Status nvarchar(20) [not null, default: 'Active', note: 'Active | Cancelled']
+  EnrolledAt datetime2 [not null, default: `SYSUTCDATETIME()`]
+
+  indexes {
+    (UserId, CategoryId) [unique, note: 'A user enrols in a category once']
+    (CategoryId, BibNumber) [unique, note: 'Bib numbers unique within a category']
+  }
+
+  Note: 'Resolves the many-to-many relationship between Users and Categories.'
+}
