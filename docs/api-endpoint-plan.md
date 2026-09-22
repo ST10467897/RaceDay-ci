@@ -13,6 +13,48 @@ This document plans the REST API that will be built in Part 2. Every endpoint is
 
 ---
 
+## Conventions
+
+### Authentication and authorisation
+- Authentication uses **JWT bearer tokens**. The client sends `Authorization: Bearer <token>` on every protected request.
+- The token carries a `role` claim (`Organiser` or `Participant`) and a `sub` claim (UserId).
+- **401 Unauthorized** means the caller is not logged in (no token, expired token, or invalid signature).
+- **403 Forbidden** means the caller is logged in but has the wrong role, or is not the owner of the resource (e.g. an organiser editing another organiser's event, or a participant cancelling someone else's enrolment).
+- Public registration always creates a **Participant**. Organiser accounts are seeded in the database (see `raceday_schema.sql`). This is a deliberate design decision: it prevents anyone from self-registering as an organiser and creating events.
+
+### Standard error shape
+All 4xx/5xx responses use one JSON shape so the client can handle errors uniformly:
+
+```json
+{
+  "status": 409,
+  "error": "Conflict",
+  "message": "You are already enrolled in this category.",
+  "details": { "categoryId": 3 }
+}
+```
+
+`details` is optional and is used for validation errors (field → message map) or extra context.
+
+### Common status codes
+| Code | Used when |
+|---|---|
+| 200 OK | Successful read or update |
+| 201 Created | Resource created; body contains the new resource and a `Location` header |
+| 204 No Content | Successful delete or cancel |
+| 400 Bad Request | Validation failure (missing/invalid fields) |
+| 401 Unauthorized | Not logged in |
+| 403 Forbidden | Wrong role or not the owner |
+| 404 Not Found | Resource does not exist |
+| 409 Conflict | Request conflicts with current state (duplicate, full, already exists, has dependants) |
+
+### Other conventions
+- All timestamps are ISO 8601 in UTC.
+- List endpoints return JSON arrays; single-resource endpoints return a JSON object.
+- Pagination is out of scope for Part 2 but `GET /api/events` accepts filters so the list stays manageable.
+
+---
+
 ## 1. Authentication
 
 | Method | Route | Purpose | Role | Request | Responses |
@@ -77,3 +119,26 @@ This document plans the REST API that will be built in Part 2. Every endpoint is
 | GET | `/api/results/me` | The caller's personal results history | Participant | Header only | **200** array of results with event, category, time and positions<br>**401** not logged in<br>**403** caller is an organiser |
 
 ---
+
+## Summary
+
+| Area | Endpoints | Public | Participant | Organiser |
+|---|---|---|---|---|
+| Authentication | 2 | 2 | – | – |
+| Profile | 2 | – | 2 (Any) | 2 (Any) |
+| Events | 7 | 3 | – | 4 |
+| Categories | 4 | 1 | – | 3 |
+| Enrolments | 4 | – | 3 | 1 |
+| Results | 4 | 1 | 1 | 2 |
+| **Total** | **23** | | | |
+
+### Why 409 is used where it is
+409 Conflict is returned whenever the request is well-formed and the caller is authorised, but the current state of the data makes the action impossible:
+- duplicate email on registration;
+- enrolling twice in the same category (matches `UQ_Enrolments_User_Category`);
+- enrolling in a full category (`enrolledCount >= MaxParticipants`);
+- recording a second result for one enrolment (matches `UQ_Results_EnrolmentId`);
+- deleting an event or category that still has enrolments (the database uses `NO ACTION` on those foreign keys, so the API surfaces this as 409 rather than letting the delete fail with a 500).
+
+### Ownership checks
+Organisers can only modify events, categories, enrolments and results that belong to events they created. The API compares the `sub` claim in the JWT with `Events.OrganiserId` before every write, and returns 403 if they differ. Participants can only cancel their own enrolments (`Enrolments.UserId` must equal the caller).
